@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="app_title">OneREE | カスタマイズ開発リバースエンジニアリングレポート</title>
+    <link rel="stylesheet" href="style.css?v=20260415_fix5">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="light-theme">
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <header class="glass-header">
+        <div class="logo">
+            <i data-lucide="binary"></i>
+            <h1>OneREE</h1>
+        </div>
+        <div class="header-controls">
+            <div class="control-group">
+                <label data-i18n="project_label">プロジェクト</label>
+                <select id="project-selector" class="header-select" title="Project"></select>
+            </div>
+            <div class="control-group">
+                <label data-i18n="lang_label">言語</label>
+                <select id="lang-selector" class="header-select" title="Language">
+                    <option value="ja">日本語</option>
+                    <option value="en">English</option>
+                    <option value="zh">中文</option>
+                </select>
+            </div>
+            <button id="ignore-all-added-btn" class="secondary-btn">
+                <i data-lucide="folder-minus"></i>
+                <span data-i18n="btn_ignore_all_added">Addedを一括除外</span>
+            </button>
+            <button id="manage-ignore-btn" class="secondary-btn">
+                <i data-lucide="ban"></i>
+                <span data-i18n="btn_manage_ignore">除外リスト管理</span>
+            </button>
+            <button id="analyze-btn" class="primary-btn">
+                <i data-lucide="refresh-cw"></i>
+                <span data-i18n="btn_analyze">分析を開始</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="content">
+        <section class="stats-panel">
+            <div class="stat-card">
+                <span class="label" data-i18n="stat_total">差異ファイル検出</span>
+                <span id="stat-total" class="value">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="label" data-i18n="stat_modified">コード修正</span>
+                <span id="stat-modified" class="value">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="label" data-i18n="stat_delta">追加/削除</span>
+                <span id="stat-delta" class="value">0</span>
+            </div>
+        </section>
+
+        <section class="report-container glass-card">
+            <div class="table-controls">
+                <div class="table-info-left">
+                    <span class="view-title" data-i18n="view_title">分析結果一覧</span>
+                </div>
+                <div class="pagination-controls">
+                    <button id="prev-page" class="icon-btn" disabled title="Previous"><i data-lucide="chevron-left"></i></button>
+                    <span id="page-info">ページ 1 / 1</span>
+                    <button id="next-page" class="icon-btn" title="Next"><i data-lucide="chevron-right"></i></button>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table id="report-table">
+                    <thead>
+                        <tr>
+                            <th class="col-id" data-i18n="col_id">番号</th>
+                            <th class="sortable" data-col="path">
+                                <div class="th-content">
+                                    <span data-i18n="col_path">パス</span>
+                                    <div class="th-icons">
+                                        <i data-lucide="arrow-up-down" class="sort-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="filter-container">
+                                    <input type="text" class="col-filter" data-col="path" data-i18n-placeholder="filter_wildcard" placeholder="*ワイルドカード..." title="Path filter">
+                                </div>
+                            </th>
+                            <th class="sortable" data-col="name">
+                                <div class="th-content">
+                                    <span data-i18n="col_name">ファイル名</span>
+                                    <div class="th-icons">
+                                        <i data-lucide="arrow-up-down" class="sort-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="filter-container">
+                                    <input type="text" class="col-filter" data-col="name" data-i18n-placeholder="filter_text" placeholder="フィルター..." title="Name filter">
+                                </div>
+                            </th>
+                            <th class="sortable" data-col="type">
+                                <div class="th-content">
+                                    <span data-i18n="col_type">カスタマイズ種別</span>
+                                    <div class="th-icons">
+                                        <i data-lucide="arrow-up-down" class="sort-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="filter-container">
+                                    <select id="filter-type" class="col-filter-select" data-col="type" title="Type filter">
+                                        <option value="" data-i18n="filter_all_types">全種別</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th class="sortable" data-col="requirement">
+                                <div class="th-content">
+                                    <span data-i18n="col_requirement_new">変更概要 (ハッシュ)</span>
+                                    <div class="th-icons">
+                                        <i data-lucide="arrow-up-down" class="sort-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="filter-container">
+                                    <input type="text" class="col-filter" data-col="requirement" data-i18n-placeholder="filter_text" placeholder="フィルター..." title="Requirement filter">
+                                </div>
+                            </th>
+                            <th class="col-actions" data-i18n="col_actions">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="glass-footer">
+        <p data-i18n="footer">&copy; 2026 OneHR</p>
+    </footer>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Modal for diff details -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content glass-card full-modal large">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <h3 id="modal-title">変更の詳細分析</h3>
+                    <span id="modal-file-path" class="path-badge"></span>
+                </div>
+                <button id="close-modal" class="icon-btn" title="Close"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="analysis-section glass-inset">
+                    <h4 class="section-title"><i data-lucide="sparkles" class="icon-small"></i> <span data-i18n="modal_logic_summary">ロジック変更サマリー</span></h4>
+                    <ul id="modal-details-list" class="details-list"></ul>
+                </div>
+                <div class="diff-section">
+                    <div class="section-header-row">
+                        <h4 class="section-title"><i data-lucide="code-2" class="icon-small"></i> <span data-i18n="modal_code_diff">コード比較</span></h4>
+                        <div class="diff-nav">
+                            <button class="nav-btn" onclick="jumpToChange(-1)" title="Previous Change"><i data-lucide="chevron-up"></i></button>
+                            <button class="nav-btn" onclick="jumpToChange(1)" title="Next Change"><i data-lucide="chevron-down"></i></button>
+                            <span id="diff-count-label" class="diff-count">0 / 0</span>
+                        </div>
+                    </div>
+                    <div id="modal-diff-container" class="diff-viewer-wrapper"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Overlay -->
+    <div id="progress-overlay" class="modal hidden">
+        <div class="modal-content progress-panel">
+            <div class="panel-header">
+                <div class="title-group">
+                    <i data-lucide="activity" class="spinning"></i>
+                    <h2 data-i18n="progress_title">OneREE 分析中...</h2>
+                </div>
+                <div class="header-actions">
+                    <button id="minimize-progress" class="icon-btn" title="最小化"><i data-lucide="minus-square"></i></button>
+                    <button id="stop-progress" class="icon-btn" title="分析中止"><i data-lucide="stop-circle"></i></button>
+                </div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-bg">
+                    <div id="progress-bar-fill" class="progress-bar-fill"></div>
+                </div>
+                <div class="progress-stats">
+                    <span id="progress-percent">0%</span>
+                    <span id="current-file" data-i18n="progress_init">システム初期化中...</span>
+                </div>
+            </div>
+            <div class="terminal-log" id="terminal-log">
+                <div class="log-entry system" data-i18n="progress_session_start">> 分析セッションを開始しています...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating mini progress indicator (shown when panel is minimized) -->
+    <div id="progress-mini" class="progress-mini hidden" title="Show progress">
+        <i data-lucide="activity" class="spinning"></i>
+        <span id="mini-percent">0%</span>
+        <div class="mini-bar">
+            <div id="mini-bar-fill" class="mini-bar-fill"></div>
+        </div>
+    </div>
+
+    <!-- Modal for Ignore List -->
+    <div id="ignore-modal" class="modal hidden">
+        <div class="modal-content glass-card list-modal">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <h3 data-i18n="ignore_modal_title">除外リスト (Ignore List)</h3>
+                </div>
+                <button id="close-ignore-modal" class="icon-btn" title="Close"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="ignore-list-container" class="ignore-list-view glass-inset">
+                    <!-- List of ignored files will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js?v=20260415_fix5"></script>
+</body>
+</html>
