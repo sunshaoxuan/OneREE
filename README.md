@@ -53,7 +53,7 @@ node server.mjs
 | `scripts/free-port.ps1` | 释放 `app_port` 占用（由 `start.bat` 调用） |
 | `scripts/stop-server.ps1` | 结束运行 `server.mjs` 的 Node 进程（由 `stop.bat` 调用） |
 | `config.example.json` | 根配置模板；复制为 `config.json` 后本地修改 |
-| `projects/example/` | **仅仓库内参考骨架**（GitHub 展示用）；本地可不使用；其余 `projects/*` 为本地数据，默认不提交 |
+| `projects/example/` | **仅仓库内参考骨架**（GitHub 展示用）；**不会出现在 Web 端项目下拉里**（`/api/projects` 已排除 `id` 为 `example` 的项）；其余 `projects/*` 为本地数据，默认不提交 |
 
 本地在 `projects/<项目ID>/` 下放置 `project.json` 及 `standard` / `customized` 等；需要时也可参考 `projects/example/` 的布局说明。
 

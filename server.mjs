@@ -41,7 +41,9 @@ function getProjects() {
                 return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
             }
             return { id: d, name: d };
-        });
+        })
+        // projects/example 仅作仓库目录结构参考，不参与本地下拉与选择
+        .filter(p => p.id !== 'example');
 }
 
 const server = http.createServer((req, res) => {
