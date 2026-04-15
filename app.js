@@ -38,6 +38,47 @@ function t(key, params = {}) {
     return str;
 }
 
+/** 旧 report-data 无 requirementKey 时的英文文案 → i18n 键 */
+const LEGACY_REQUIREMENT_MAP = {
+    'Source file modified (Hash mismatch).': 'req_hash_modified',
+    'Binary file change detected.': 'req_binary_changed',
+    'New source file added.': 'req_new_source',
+    'New binary file added.': 'req_new_binary',
+    'Standard feature removed in customization.': 'req_standard_removed'
+};
+
+function translateTypeLabel(type) {
+    if (!type) return '';
+    return t(`type_${String(type).toLowerCase()}`);
+}
+
+function translateRequirement(item) {
+    if (item.requirementKey) return t(item.requirementKey);
+    const legacy = LEGACY_REQUIREMENT_MAP[item.requirement];
+    if (legacy) return t(legacy);
+    return item.requirement || '';
+}
+
+function translateDetailLine(d) {
+    if (d && typeof d === 'object' && d.key) {
+        return t(d.key, d.params || {});
+    }
+    if (typeof d !== 'string') return String(d);
+    if (d === 'Hash mismatch detected. Detailed comparison available in code view.') {
+        return `${t('detail_hash_mismatch')} ${t('detail_code_compare_hint')}`;
+    }
+    const legacyDetail = {
+        'Hash mismatch detected.': 'detail_hash_mismatch',
+        'Detailed comparison available in code view.': 'detail_code_compare_hint'
+    };
+    if (legacyDetail[d]) return t(legacyDetail[d]);
+    if (d.startsWith('Decompilation failed:')) {
+        const err = d.slice('Decompilation failed:'.length).trim();
+        return t('detail_decompile_failed', { error: err });
+    }
+    return d;
+}
+
 function applyI18n() {
     document.title = t('app_title');
     document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -51,10 +92,10 @@ function applyI18n() {
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
     });
-    // Re-render dynamic content (always update pagination even with no data)
-    renderTable();
+    // 先同步类型下拉与 columnFilters，再 applyFiltersAndSort（内含 renderTable），避免切换语言后筛选状态与 DOM 不一致
     renderStats();
     populateTypeFilter();
+    applyFiltersAndSort();
     if (!document.getElementById('modal').classList.contains('hidden') && modalOpenFileId != null) {
         updateModalFileNav(modalOpenFileId);
     }
@@ -212,9 +253,19 @@ function populateTypeFilter() {
     types.forEach(tp => {
         const opt = document.createElement('option');
         opt.value = tp;
-        opt.textContent = tp;
+        opt.textContent = translateTypeLabel(tp);
         select.appendChild(opt);
     });
+    // 与 columnFilters 同步：重建 option 后必须恢复选中项；数据变化后若已无该种别则清除筛选（避免「界面像全種別、实际仍按 ADDED 过滤」）
+    const saved = columnFilters['type'];
+    if (saved && types.includes(saved)) {
+        select.value = saved;
+    } else {
+        if (saved && !types.includes(saved)) {
+            delete columnFilters['type'];
+        }
+        select.value = '';
+    }
 }
 
 // ===== Analysis & Progress =====
@@ -388,6 +439,12 @@ function applyFiltersAndSort() {
         if (query) {
             const regex = wildcardToRegex(query);
             data = data.filter(item => {
+                if (col === 'requirement') {
+                    const tr = translateRequirement(item);
+                    const raw = String(item.requirement || '');
+                    const key = String(item.requirementKey || '');
+                    return regex.test(tr) || regex.test(raw) || regex.test(key);
+                }
                 let target = String(item[col] || '');
                 if (col === 'path') target = getDirOnly(item.path);
                 return regex.test(target);
@@ -402,6 +459,12 @@ function applyFiltersAndSort() {
             if (sortConfig.key === 'path') {
                 valA = getDirOnly(valA);
                 valB = getDirOnly(valB);
+            } else if (sortConfig.key === 'requirement') {
+                valA = translateRequirement(a);
+                valB = translateRequirement(b);
+            } else if (sortConfig.key === 'type') {
+                valA = translateTypeLabel(a.type);
+                valB = translateTypeLabel(b.type);
             }
             const cmp = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
             return sortConfig.direction === 'asc' ? cmp : -cmp;
@@ -436,6 +499,9 @@ function renderStats() {
 }
 
 function renderTable() {
+    const totalPagesSafe = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
+    if (currentPage > totalPagesSafe) currentPage = totalPagesSafe;
+
     const start = (currentPage - 1) * itemsPerPage;
     const end = start + itemsPerPage;
     const pageItems = filteredData.slice(start, end);
@@ -449,11 +515,11 @@ function renderTable() {
             <td class="cell-id">${item.id}</td>
             <td class="cell-path">${getDirOnly(item.path)}</td>
             <td class="cell-name">${item.name}</td>
-            <td><span class="type-badge type-${item.type}">${item.type}</span></td>
+            <td><span class="type-badge type-${item.type}">${translateTypeLabel(item.type)}</span></td>
             <td class="requirement-text">
                 ${item.type === 'MODIFIED'
-                    ? `<span class="requirement-link" data-id="${item.id}">${item.requirement}</span>`
-                    : item.requirement}
+                    ? `<span class="requirement-link" data-id="${item.id}">${translateRequirement(item)}</span>`
+                    : translateRequirement(item)}
             </td>
             <td class="cell-actions">
                 <button class="ignore-btn-sm" title="${t('btn_ignore')}">
@@ -553,7 +619,7 @@ function openDetail(id) {
     } else {
         details.forEach(d => {
             const li = document.createElement('li');
-            li.textContent = d;
+            li.textContent = translateDetailLine(d);
             list.appendChild(li);
         });
     }
@@ -870,7 +936,7 @@ async function renderIgnoreList() {
         // Show count
         const countDiv = document.createElement('div');
         countDiv.style.cssText = 'padding: 6px 12px; color: #888; font-size: 0.85em; border-bottom: 1px solid #eee;';
-        countDiv.textContent = `${list.length} 件の除外エントリ`;
+        countDiv.textContent = t('ignore_list_count', { count: list.length });
         container.appendChild(countDiv);
 
         list.sort().forEach(filePath => {
@@ -883,10 +949,10 @@ async function renderIgnoreList() {
             
             const undoBtn = document.createElement('button');
             undoBtn.className = 'unignore-btn';
-            undoBtn.textContent = 'Undo';
+            undoBtn.textContent = t('btn_unignore');
             undoBtn.onclick = async () => {
                 undoBtn.disabled = true;
-                undoBtn.textContent = '...';
+                undoBtn.textContent = '…';
                 await unignoreFile(filePath);
             };
             
@@ -895,7 +961,7 @@ async function renderIgnoreList() {
             container.appendChild(row);
         });
     } catch (e) {
-        container.innerHTML = `<div class="error-msg">Error loading ignore list.</div>`;
+        container.innerHTML = `<div class="error-msg">${escapeHtml(t('ignore_list_load_error'))}</div>`;
         console.error('renderIgnoreList error:', e);
     }
 }

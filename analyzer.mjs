@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { execFileSync } from 'child_process';
 import crypto from 'crypto';
+import { RequirementKey, DetailKey } from './report-enums.mjs';
 
 const config = JSON.parse(fs.readFileSync('./config.json', 'utf-8'));
 
@@ -163,7 +164,12 @@ async function analyze() {
 
             let standardCode = '';
             let customCode = '';
-            let detailList = skipAnalysis ? [] : ['Hash mismatch detected. Detailed comparison available in code view.'];
+            let detailList = skipAnalysis
+                ? []
+                : [
+                      { key: DetailKey.HASH_MISMATCH },
+                      { key: DetailKey.CODE_COMPARE_HINT }
+                  ];
 
             // Attempt to read as text unless it's a known binary extension
             if (!skipAnalysis) {
@@ -194,8 +200,8 @@ async function analyze() {
                         console.error(`Decompile failed for ${relativePath}:`, errText);
                         diff = '[Decompilation Failed]';
                         detailList = [
-                            'Hash mismatch detected.',
-                            `Decompilation failed: ${errText}`
+                            { key: DetailKey.HASH_MISMATCH },
+                            { key: DetailKey.DECOMPILE_FAILED, params: { error: errText } }
                         ];
                     }
                 } else {
@@ -211,8 +217,9 @@ async function analyze() {
 
             results.push({
                 id: results.length + 1, path: relativePath, name: fileName,
-                type: (type === 'ADDED') ? 'ADDED' : 'MODIFIED', 
+                type: (type === 'ADDED') ? 'ADDED' : 'MODIFIED',
                 diff: skipAnalysis ? '[Binary File]' : diff,
+                requirementKey: skipAnalysis ? RequirementKey.BINARY_CHANGED : RequirementKey.HASH_MODIFIED,
                 requirement: skipAnalysis ? 'Binary file change detected.' : 'Source file modified (Hash mismatch).',
                 detailedAnalysis: detailList,
                 standardCode: skipAnalysis ? '' : standardCode,
@@ -231,9 +238,10 @@ async function analyze() {
         if (type === 'ADDED') {
             results.push({
                 id: results.length + 1, path: relativePath, name: fileName,
-                type: 'ADDED', diff: 'New File', 
-                requirement: skipAnalysis ? "New binary file added." : "New source file added.", 
-                fullDiff: ""
+                type: 'ADDED', diff: 'New File',
+                requirementKey: skipAnalysis ? RequirementKey.NEW_BINARY : RequirementKey.NEW_SOURCE,
+                requirement: skipAnalysis ? 'New binary file added.' : 'New source file added.',
+                fullDiff: ''
             });
             if (results.length % 10 === 0) {
                 fs.writeFileSync(REPORT_FILE, JSON.stringify(results, null, 2));
@@ -249,7 +257,9 @@ async function analyze() {
             results.push({
                 id: results.length + 1, path: relativePath, name: path.basename(stdPath),
                 type: 'DELETED', diff: 'File Removed',
-                requirement: "Standard feature removed in customization.", fullDiff: ""
+                requirementKey: RequirementKey.STANDARD_REMOVED,
+                requirement: 'Standard feature removed in customization.',
+                fullDiff: ''
             });
         }
     }

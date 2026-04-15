@@ -57,8 +57,17 @@ node server.mjs
 
 本地在 `projects/<项目ID>/` 下放置 `project.json` 及 `standard` / `customized` 等；需要时也可参考 `projects/example/` 的布局说明。
 
-## 许可证与归属
+## 最近改动 (Recent Changes)
 
-产品名：**OneREE**。公司名：**OneHR**（见页面页脚）。
+- **后端解析增强**：
+  - 引入 `report-enums.mjs` 标准化枚举，解耦逻辑判定与多语言显示。
+  - `analyzer.mjs` 升级：支持通过 `requirementKey` 记录变更原因，增强对二进制文件与源码文件的自动识别逻辑。
+- **前端体验优化**：
+  - 加固「忽略列表」管理功能，修复操作确认对话框体验，并实现全量多语言支持。
+  - `index.html` 文案精简：统一专业术语，如将 "Added" 明确为 "追加" 以符合项目语境。
+- **国际化 (i18n)**：
+  - 更新 `en.json` / `ja.json` / `zh.json`，补充变更类型与错误信息的详细翻译。
+  - 改进字级 Diff 高亮逻辑的稳定性。
 
-若需二次开发或部署说明，可结合 **`config.example.json`** 与 `checker.mjs` 启动检查逻辑自行扩展。
+---
+*Last Updated: 2026-04-15*
