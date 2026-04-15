@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import crypto from 'crypto';
 
 const config = JSON.parse(fs.readFileSync('./config.json', 'utf-8'));
@@ -15,10 +15,19 @@ const CUSTOMIZED_DIR = path.join(projectDir, projectConfig.customized_dir);
 const REPORT_FILE = path.join(projectDir, 'report-data.json');
 const STATUS_FILE = path.join(projectDir, 'status.json');
 
-// Classpath: project root (DecompilerCLI.class) + lib/jd-core.jar（相对路径相对仓库根目录）
+// Classpath: 项目根（DecompilerCLI.class）+ lib/jd-core.jar；用 execFileSync 传参，避免 Windows 下 shell 对 -cp 引号转义导致反编译失败
 const ROOT = process.cwd();
-const jdCoreJarAbs = path.resolve(ROOT, config.java.jd_core_jar || 'lib/jd-core.jar');
+const jdCoreJarAbs = path.resolve(ROOT, config.java?.jd_core_jar || 'lib/jd-core.jar');
 const DECOMPILER_CP = `${ROOT}${path.delimiter}${jdCoreJarAbs}`;
+
+function runDecompilerCli(inputClassPath, outputJavaPath) {
+    execFileSync('java', ['-cp', DECOMPILER_CP, 'DecompilerCLI', inputClassPath, outputJavaPath], {
+        cwd: ROOT,
+        stdio: 'pipe',
+        encoding: 'utf8',
+        windowsHide: true
+    });
+}
 
 const ARCHIVE_PATH = projectConfig.archive_path;
 const IGNORE_FILE = path.join(projectDir, 'ignore.json');
@@ -154,14 +163,15 @@ async function analyze() {
                     console.log(`Decompiling ${relativePath}...`);
                     saveStatus({ status: 'analyzing', progress, currentFile: relativePath, log: `${fileName} を逆コンパイル中...` });
                     try {
-                        const customDecompiled = `temp_custom.java`;
-                        const standardDecompiled = `temp_std.java`;
-                        execSync(`java -cp "${DECOMPILER_CP}" DecompilerCLI "${customPath}" "${customDecompiled}"`);
-                        execSync(`java -cp "${DECOMPILER_CP}" DecompilerCLI "${standardPath}" "${standardDecompiled}"`);
+                        const customDecompiled = path.join(ROOT, 'temp_custom.java');
+                        const standardDecompiled = path.join(ROOT, 'temp_std.java');
+                        runDecompilerCli(customPath, customDecompiled);
+                        runDecompilerCli(standardPath, standardDecompiled);
                         customCode = readFileWithEncoding(customDecompiled);
                         standardCode = readFileWithEncoding(standardDecompiled);
                         diff = "[Decompiled Code Differences]";
                     } catch (e) {
+                        console.error(`Decompile failed for ${relativePath}:`, e.message);
                         diff = "[Decompilation Failed]";
                     }
                 } else {

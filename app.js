@@ -537,6 +537,8 @@ function openDetail(id) {
     if (!item) return;
 
     modalOpenFileId = id;
+    diffNodes = [];
+    currentDiffIndex = -1;
 
     document.getElementById('modal-title').textContent = t('modal_title', { file: item.name });
     const pathEl = document.getElementById('modal-file-path');
@@ -564,6 +566,7 @@ function openDetail(id) {
     } else {
         const msg = item.type === 'MODIFIED' ? t('modal_no_source') : t('modal_non_modified');
         diffContainer.innerHTML = `<div class="diff-placeholder">${msg}</div>`;
+        updateDiffLabel();
     }
 
     document.getElementById('modal').classList.remove('hidden');
