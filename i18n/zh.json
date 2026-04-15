@@ -25,6 +25,8 @@
   "modal_no_source": "无法获取源码进行对比。",
   "modal_non_modified": "非修改类文件不显示代码对比。",
   "modal_close": "关闭",
+  "modal_prev_file": "上一个文件",
+  "modal_next_file": "下一个文件",
   "progress_title": "OneREE 正在分析中...",
   "progress_init": "正在初始化系统引导...",
   "progress_session_start": "正在启动分析会话...",

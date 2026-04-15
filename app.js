@@ -12,6 +12,8 @@ let currentProject = '';
 let projectList = [];
 let diffNodes = [];
 let currentDiffIndex = -1;
+/** 当前详情弹窗打开的文件 id（用于上一个/下一个文件） */
+let modalOpenFileId = null;
 
 // ===== i18n Engine =====
 async function loadLocale(locale) {
@@ -53,6 +55,9 @@ function applyI18n() {
     renderTable();
     renderStats();
     populateTypeFilter();
+    if (!document.getElementById('modal').classList.contains('hidden') && modalOpenFileId != null) {
+        updateModalFileNav(modalOpenFileId);
+    }
 }
 
 // ===== Project Management =====
@@ -121,6 +126,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closeModal = document.getElementById('close-modal');
     if (closeModal) closeModal.addEventListener('click', () => {
         document.getElementById('modal').classList.add('hidden');
+        modalOpenFileId = null;
     });
 
     // Minimize & Stop controls
@@ -175,6 +181,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (closeIgnoreModal) closeIgnoreModal.addEventListener('click', () => {
         document.getElementById('ignore-modal').classList.add('hidden');
     });
+
+    const modalPrevFile = document.getElementById('modal-prev-file');
+    if (modalPrevFile) modalPrevFile.addEventListener('click', () => openModalAdjacentFile(-1));
+    const modalNextFile = document.getElementById('modal-next-file');
+    if (modalNextFile) modalNextFile.addEventListener('click', () => openModalAdjacentFile(1));
 });
 
 // ===== Data Fetching =====
@@ -481,12 +492,56 @@ function showToast(msg, type) {
 }
 
 // ===== Detail Modal =====
+function updateModalFileNav(currentId) {
+    const pathEl = document.getElementById('modal-file-path');
+    const prevBtn = document.getElementById('modal-prev-file');
+    const nextBtn = document.getElementById('modal-next-file');
+    const prevName = document.getElementById('modal-prev-file-name');
+    const nextName = document.getElementById('modal-next-file-name');
+    const posEl = document.getElementById('modal-file-position');
+    if (!prevBtn || !nextBtn || !posEl) return;
+
+    const idx = filteredData.findIndex(i => i.id === currentId);
+    const prevItem = idx > 0 ? filteredData[idx - 1] : null;
+    const nextItem = idx >= 0 && idx < filteredData.length - 1 ? filteredData[idx + 1] : null;
+
+    prevBtn.disabled = !prevItem;
+    nextBtn.disabled = !nextItem;
+    prevBtn.title = t('modal_prev_file');
+    nextBtn.title = t('modal_next_file');
+
+    if (prevName) {
+        prevName.textContent = prevItem ? prevItem.name : '';
+        prevName.title = prevItem ? prevItem.path : '';
+    }
+    if (nextName) {
+        nextName.textContent = nextItem ? nextItem.name : '';
+        nextName.title = nextItem ? nextItem.path : '';
+    }
+    posEl.textContent = idx >= 0 && filteredData.length > 0
+        ? `${idx + 1} / ${filteredData.length}`
+        : '0 / 0';
+    if (pathEl) pathEl.title = pathEl.textContent || '';
+}
+
+function openModalAdjacentFile(delta) {
+    if (modalOpenFileId == null) return;
+    const idx = filteredData.findIndex(i => i.id === modalOpenFileId);
+    if (idx < 0) return;
+    const target = filteredData[idx + delta];
+    if (target) openDetail(target.id);
+}
+
 function openDetail(id) {
     const item = allData.find(i => i.id === id);
     if (!item) return;
 
+    modalOpenFileId = id;
+
     document.getElementById('modal-title').textContent = t('modal_title', { file: item.name });
-    document.getElementById('modal-file-path').textContent = item.path;
+    const pathEl = document.getElementById('modal-file-path');
+    pathEl.textContent = item.path;
+    pathEl.title = item.path;
 
     const list = document.getElementById('modal-details-list');
     list.innerHTML = '';
@@ -513,6 +568,7 @@ function openDetail(id) {
 
     document.getElementById('modal').classList.remove('hidden');
     lucide.createIcons();
+    updateModalFileNav(id);
 
     // 切换文件后重置弹窗滚动，避免沿用上一文件的 scrollTop，导致「下一处差异」像往回滚
     const modalBody = document.querySelector('#modal .modal-body');

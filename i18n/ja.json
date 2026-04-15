@@ -25,6 +25,8 @@
   "modal_no_source": "ソースコードの比較ができません。",
   "modal_non_modified": "修正タイプ以外のファイルはコード比較を表示しません。",
   "modal_close": "閉じる",
+  "modal_prev_file": "前のファイル",
+  "modal_next_file": "次のファイル",
   "progress_title": "OneREE 分析中...",
   "progress_init": "システム初期化中...",
   "progress_session_start": "分析セッションを開始しています...",

@@ -148,7 +148,16 @@
             <div class="modal-header">
                 <div class="modal-title-group">
                     <h3 id="modal-title">変更の詳細分析</h3>
-                    <span id="modal-file-path" class="path-badge"></span>
+                    <div class="modal-path-row">
+                        <span id="modal-file-path" class="path-badge modal-file-path-ellipsis" title=""></span>
+                        <div class="modal-file-stepper">
+                            <button type="button" class="nav-btn" id="modal-prev-file" title=""><i data-lucide="chevron-left"></i></button>
+                            <span id="modal-prev-file-name" class="modal-file-neighbor" title=""></span>
+                            <span id="modal-file-position" class="modal-file-position">1 / 1</span>
+                            <span id="modal-next-file-name" class="modal-file-neighbor" title=""></span>
+                            <button type="button" class="nav-btn" id="modal-next-file" title=""><i data-lucide="chevron-right"></i></button>
+                        </div>
+                    </div>
                 </div>
                 <button id="close-modal" class="icon-btn" title="Close"><i data-lucide="x"></i></button>
             </div>

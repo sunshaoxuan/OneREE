@@ -25,6 +25,8 @@
   "modal_no_source": "Unable to compare source code.",
   "modal_non_modified": "Code comparison is not shown for non-modified files.",
   "modal_close": "Close",
+  "modal_prev_file": "Previous file",
+  "modal_next_file": "Next file",
   "progress_title": "OneREE Analyzing...",
   "progress_init": "Initializing system...",
   "progress_session_start": "Starting analysis session...",
