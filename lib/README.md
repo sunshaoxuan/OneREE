@@ -1,6 +1,8 @@
 # 第三方库（jd-core）
 
-反编译 **`.class`** 文件依赖 **jd-core**（Java 反编译库）。请在本目录放置 jar 文件，并与根目录 **`config.json`** 中的 `java.jd_core_jar` 一致（默认文件名见 `config.example.json`）。
+反编译 **`.class`** 文件**必须**有本目录下的 **jd-core** jar（仓库不附带该二进制）。若未放置，分析时反编译会失败，详情里会提示 `jd-core jar not found`。
+
+**操作**：将 jd-core 的 jar 复制到本目录，命名为 **`jd-core.jar`**（或与 `config.json` 里 `java.jd_core_jar` 一致）。若 jar 放在其他盘，可在 `config.json` 中把 `java.jd_core_jar` 设为**绝对路径**。
 
 ## 获取方式
 

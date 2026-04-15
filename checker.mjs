@@ -1,6 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 
+function resolveJarPath(root, jarConfig) {
+    const raw = jarConfig || 'lib/jd-core.jar';
+    return path.isAbsolute(raw) ? path.normalize(raw) : path.resolve(root, raw);
+}
+
 export async function runChecks(config) {
     console.log("-----------------------------------------");
     console.log("   OneREE STARTUP: DEPENDENCY CHECKS     ");
@@ -9,8 +14,8 @@ export async function runChecks(config) {
     const results = {};
 
     const root = process.cwd();
-    if (config.java && config.java.jd_core_jar) {
-        const jar = path.resolve(root, config.java.jd_core_jar);
+    if (config.java) {
+        const jar = resolveJarPath(root, config.java.jd_core_jar);
         results.jd_core = checkPath(jar, 'jd-core (lib)');
     }
 

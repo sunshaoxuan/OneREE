@@ -15,16 +15,23 @@ const CUSTOMIZED_DIR = path.join(projectDir, projectConfig.customized_dir);
 const REPORT_FILE = path.join(projectDir, 'report-data.json');
 const STATUS_FILE = path.join(projectDir, 'status.json');
 
-// Classpath: 项目根（DecompilerCLI.class）+ lib/jd-core.jar；用 execFileSync 传参，避免 Windows 下 shell 对 -cp 引号转义导致反编译失败
+// Classpath: 项目根（DecompilerCLI.class）+ jd-core.jar；execFileSync 避免 Windows shell 转义问题
 const ROOT = process.cwd();
-const jdCoreJarAbs = path.resolve(ROOT, config.java?.jd_core_jar || 'lib/jd-core.jar');
+const jarRaw = config.java?.jd_core_jar || 'lib/jd-core.jar';
+const jdCoreJarAbs = path.isAbsolute(jarRaw) ? path.normalize(jarRaw) : path.resolve(ROOT, jarRaw);
 const DECOMPILER_CP = `${ROOT}${path.delimiter}${jdCoreJarAbs}`;
+
+function formatExecError(e) {
+    const out = [];
+    if (e.stderr) out.push(Buffer.from(e.stderr).toString('utf8'));
+    if (e.stdout) out.push(Buffer.from(e.stdout).toString('utf8'));
+    return (out.join('\n').trim() || e.message || String(e)).trim();
+}
 
 function runDecompilerCli(inputClassPath, outputJavaPath) {
     execFileSync('java', ['-cp', DECOMPILER_CP, 'DecompilerCLI', inputClassPath, outputJavaPath], {
         cwd: ROOT,
-        stdio: 'pipe',
-        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
         windowsHide: true
     });
 }
@@ -156,6 +163,7 @@ async function analyze() {
 
             let standardCode = '';
             let customCode = '';
+            let detailList = skipAnalysis ? [] : ['Hash mismatch detected. Detailed comparison available in code view.'];
 
             // Attempt to read as text unless it's a known binary extension
             if (!skipAnalysis) {
@@ -163,24 +171,40 @@ async function analyze() {
                     console.log(`Decompiling ${relativePath}...`);
                     saveStatus({ status: 'analyzing', progress, currentFile: relativePath, log: `${fileName} を逆コンパイル中...` });
                     try {
+                        const cliClass = path.join(ROOT, 'DecompilerCLI.class');
+                        if (!fs.existsSync(jdCoreJarAbs)) {
+                            throw new Error(
+                                `jd-core jar not found: ${jdCoreJarAbs}. Place jd-core jar in lib/ (e.g. lib/jd-core.jar) or set java.jd_core_jar to an absolute path in config.json.`
+                            );
+                        }
+                        if (!fs.existsSync(cliClass)) {
+                            throw new Error(
+                                `DecompilerCLI.class not found in project root. Compile: javac -cp "${jdCoreJarAbs}" DecompilerCLI.java`
+                            );
+                        }
                         const customDecompiled = path.join(ROOT, 'temp_custom.java');
                         const standardDecompiled = path.join(ROOT, 'temp_std.java');
                         runDecompilerCli(customPath, customDecompiled);
                         runDecompilerCli(standardPath, standardDecompiled);
                         customCode = readFileWithEncoding(customDecompiled);
                         standardCode = readFileWithEncoding(standardDecompiled);
-                        diff = "[Decompiled Code Differences]";
+                        diff = '[Decompiled Code Differences]';
                     } catch (e) {
-                        console.error(`Decompile failed for ${relativePath}:`, e.message);
-                        diff = "[Decompilation Failed]";
+                        const errText = formatExecError(e);
+                        console.error(`Decompile failed for ${relativePath}:`, errText);
+                        diff = '[Decompilation Failed]';
+                        detailList = [
+                            'Hash mismatch detected.',
+                            `Decompilation failed: ${errText}`
+                        ];
                     }
                 } else {
                     try {
                         customCode = readFileWithEncoding(customPath);
                         standardCode = readFileWithEncoding(standardPath);
-                        diff = "[Text Code Differences]";
+                        diff = '[Text Code Differences]';
                     } catch (e) {
-                        diff = "[Binary/Special File]";
+                        diff = '[Binary/Special File]';
                     }
                 }
             }
@@ -188,12 +212,12 @@ async function analyze() {
             results.push({
                 id: results.length + 1, path: relativePath, name: fileName,
                 type: (type === 'ADDED') ? 'ADDED' : 'MODIFIED', 
-                diff: skipAnalysis ? "[Binary File]" : diff,
-                requirement: skipAnalysis ? "Binary file change detected." : "Source file modified (Hash mismatch).",
-                detailedAnalysis: skipAnalysis ? [] : ["Hash mismatch detected. Detailed comparison available in code view."],
-                standardCode: skipAnalysis ? "" : standardCode,
-                customCode: skipAnalysis ? "" : customCode,
-                fullDiff: ""
+                diff: skipAnalysis ? '[Binary File]' : diff,
+                requirement: skipAnalysis ? 'Binary file change detected.' : 'Source file modified (Hash mismatch).',
+                detailedAnalysis: detailList,
+                standardCode: skipAnalysis ? '' : standardCode,
+                customCode: skipAnalysis ? '' : customCode,
+                fullDiff: ''
             });
 
             // Incremental save every 10 files to keep the UI updated
