@@ -1,7 +1,7 @@
 {
   "app_port": 3000,
   "default_locale": "ja",
-  "default_project": "example",
+  "default_project": "tsukuba",
   "java": {
     "jd_core_jar": "lib/jd-core.jar"
   }

@@ -14,8 +14,8 @@
    copy config.example.json config.json
    ```
    （Linux / macOS：`cp config.example.json config.json`）
-   按需修改 `app_port`、`default_locale`、`default_project`。将 jd-core jar 放入 **`lib/`**（默认文件名 **`jd-core.jar`**，与 `java.jd_core_jar` 一致即可）。
-2. 仓库已包含示例项目骨架 **`projects/example/`**（空 `standard/` / `customized/`）。可将真实源码放入对应目录，或复制该目录为新项目 ID 后修改 **`project.json`**。**除 `example` 外的本地项目目录默认不提交**（见 `.gitignore`）。
+   按需修改 `app_port`、`default_locale`。**`default_project`** 请设为**你本地实际使用的项目 ID**（模板里写的是 `tsukuba`，请改成你的 `projects/<id>/` 目录名）。将 jd-core jar 放入 **`lib/`**（默认 **`jd-core.jar`**）。
+2. **`projects/example/`** 仅在 **GitHub 仓库里**作为**目录结构示例**（空骨架），**不是默认开发项目**；本地日常开发在 **`projects/<你的项目ID>/`**（如 `tsukuba`）下进行即可，**不必**使用或保留 `example`。**除 `example` 外的本地项目目录默认不提交**（见 `.gitignore`）。
 3. **Windows**：双击 **`start.bat`**，或在 **cmd** / **PowerShell** 中于项目根目录执行：
    ```bat
    .\start.bat
@@ -37,7 +37,7 @@ node server.mjs
 |------|------|
 | `app_port` | HTTP 服务端口 |
 | `default_locale` | 默认界面语言：`ja` / `en` / `zh` |
-| `default_project` | 默认项目 ID，对应 `projects/<id>/` |
+| `default_project` | 启动时默认选中的项目 ID，须对应 **`projects/<id>/`** 中已有目录；模板为 `tsukuba`，请改为你的真实项目 ID（**勿**填 `example`，`example` 仅供仓库内参考） |
 | `java.jd_core_jar` | jd-core jar 的**相对项目根目录的路径**（默认 `lib/jd-core.jar`）；运行时与项目根目录一起组成 `java -cp` classpath，无需再手写 `decompiler_cp` |
 
 ## 目录结构（概要）
@@ -53,9 +53,9 @@ node server.mjs
 | `scripts/free-port.ps1` | 释放 `app_port` 占用（由 `start.bat` 调用） |
 | `scripts/stop-server.ps1` | 结束运行 `server.mjs` 的 Node 进程（由 `stop.bat` 调用） |
 | `config.example.json` | 根配置模板；复制为 `config.json` 后本地修改 |
-| `projects/example/` | **示例项目骨架**（`project.json`、`standard/`、`customized/`、`ignore.json`）；其余 `projects/*` 为本地数据，默认不提交 |
+| `projects/example/` | **仅仓库内参考骨架**（GitHub 展示用）；本地可不使用；其余 `projects/*` 为本地数据，默认不提交 |
 
-本地新增大体积项目时，在 `projects/<项目ID>/` 下放置 `project.json` 及 `standard` / `customized` 等；可参考 `projects/example/README.md`。
+本地在 `projects/<项目ID>/` 下放置 `project.json` 及 `standard` / `customized` 等；需要时也可参考 `projects/example/` 的布局说明。
 
 ## 许可证与归属
 
