@@ -5,7 +5,7 @@
 ## 环境要求
 
 - **Node.js**（建议 LTS，需支持 ES Module）
-- 分析 **`.class`** 文件时：本机已安装 **JDK**，并在 `config.json` 中配置 **jd-core** 相关路径（见下文）
+- 分析 **`.class`** 文件时：本机已安装 **JDK**；将 **jd-core** 的 jar 放入项目 **`lib/`**（见 `lib/README.md`），根目录 **`config.json`** 中 **`java.jd_core_jar`** 使用相对路径（默认 `lib/jd-core.jar`）；根目录需有 **`DecompilerCLI.class`**（由 `DecompilerCLI.java` 编译生成）。
 
 ## 快速开始
 
@@ -14,7 +14,7 @@
    copy config.example.json config.json
    ```
    （Linux / macOS：`cp config.example.json config.json`）
-   按需修改 `app_port`、`default_locale`、`default_project` 以及 **`java`** 中的 jd-core 路径（仅当需要反编译 `.class` 时）。
+   按需修改 `app_port`、`default_locale`、`default_project`。将 jd-core jar 放入 **`lib/`**（默认文件名 **`jd-core.jar`**，与 `java.jd_core_jar` 一致即可）。
 2. 仓库已包含示例项目骨架 **`projects/example/`**（空 `standard/` / `customized/`）。可将真实源码放入对应目录，或复制该目录为新项目 ID 后修改 **`project.json`**。**除 `example` 外的本地项目目录默认不提交**（见 `.gitignore`）。
 3. **Windows**：双击 **`start.bat`**，或在 **cmd** / **PowerShell** 中于项目根目录执行：
    ```bat
@@ -38,8 +38,7 @@ node server.mjs
 | `app_port` | HTTP 服务端口 |
 | `default_locale` | 默认界面语言：`ja` / `en` / `zh` |
 | `default_project` | 默认项目 ID，对应 `projects/<id>/` |
-| `java.jd_core_jar` | jd-core 的 jar 路径（用于反编译） |
-| `java.decompiler_cp` | `java -cp` 的 classpath，需包含上述 jar 与当前目录下的 `DecompilerCLI` 编译产物 |
+| `java.jd_core_jar` | jd-core jar 的**相对项目根目录的路径**（默认 `lib/jd-core.jar`）；运行时与项目根目录一起组成 `java -cp` classpath，无需再手写 `decompiler_cp` |
 
 ## 目录结构（概要）
 
@@ -49,7 +48,8 @@ node server.mjs
 | `analyzer.mjs` | 分析任务（由 `/api/analyze` 触发） |
 | `app.js` / `index.html` / `style.css` | 前端 |
 | `i18n/*.json` | 多语言文案 |
-| `DecompilerCLI.java` | 反编译命令行入口（需 `javac` 编译后与 jd-core 一起使用） |
+| `lib/` | **必备第三方**：放置 `jd-core.jar`（名称可自定，与配置一致），详见 `lib/README.md` |
+| `DecompilerCLI.java` | 反编译 CLI；在项目根执行 `javac -cp lib/jd-core.jar DecompilerCLI.java` 生成 `DecompilerCLI.class` |
 | `scripts/free-port.ps1` | 释放 `app_port` 占用（由 `start.bat` 调用） |
 | `scripts/stop-server.ps1` | 结束运行 `server.mjs` 的 Node 进程（由 `stop.bat` 调用） |
 | `config.example.json` | 根配置模板；复制为 `config.json` 后本地修改 |

@@ -3,7 +3,6 @@
   "default_locale": "ja",
   "default_project": "example",
   "java": {
-    "jd_core_jar": "C:\\path\\to\\jd-core.jar",
-    "decompiler_cp": ".;C:\\path\\to\\jd-core.jar"
+    "jd_core_jar": "lib/jd-core.jar"
   }
 }

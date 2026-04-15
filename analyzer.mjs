@@ -15,8 +15,10 @@ const CUSTOMIZED_DIR = path.join(projectDir, projectConfig.customized_dir);
 const REPORT_FILE = path.join(projectDir, 'report-data.json');
 const STATUS_FILE = path.join(projectDir, 'status.json');
 
-const JD_CORE_JAR = config.java.jd_core_jar;
-const DECOMPILER_CP = config.java.decompiler_cp;
+// Classpath: project root (DecompilerCLI.class) + lib/jd-core.jar（相对路径相对仓库根目录）
+const ROOT = process.cwd();
+const jdCoreJarAbs = path.resolve(ROOT, config.java.jd_core_jar || 'lib/jd-core.jar');
+const DECOMPILER_CP = `${ROOT}${path.delimiter}${jdCoreJarAbs}`;
 
 const ARCHIVE_PATH = projectConfig.archive_path;
 const IGNORE_FILE = path.join(projectDir, 'ignore.json');

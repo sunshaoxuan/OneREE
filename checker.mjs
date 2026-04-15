@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 
 export async function runChecks(config) {
     console.log("-----------------------------------------");
@@ -6,6 +7,12 @@ export async function runChecks(config) {
     console.log("-----------------------------------------");
 
     const results = {};
+
+    const root = process.cwd();
+    if (config.java && config.java.jd_core_jar) {
+        const jar = path.resolve(root, config.java.jd_core_jar);
+        results.jd_core = checkPath(jar, 'jd-core (lib)');
+    }
 
     // Optional remote endpoints (e.g. future integrations)
     if (config.nodes && typeof config.nodes === 'object') {

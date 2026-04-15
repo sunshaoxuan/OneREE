@@ -10,6 +10,10 @@ projects/**
 !projects/example/
 !projects/example/**
 
-# Java 编译产物与反编译临时文件
+# Java 编译产物与反编译临时文件（根目录 DecompilerCLI.class 可提交，便于独立发行）
 *.class
+!DecompilerCLI.class
 temp_*.java
+
+# 可选：不把 jd-core jar 提交到 Git（发行 zip 时再放入 lib/）
+# lib/*.jar
