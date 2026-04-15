@@ -513,6 +513,10 @@ function openDetail(id) {
 
     document.getElementById('modal').classList.remove('hidden');
     lucide.createIcons();
+
+    // 切换文件后重置弹窗滚动，避免沿用上一文件的 scrollTop，导致「下一处差异」像往回滚
+    const modalBody = document.querySelector('#modal .modal-body');
+    if (modalBody) modalBody.scrollTop = 0;
 }
 
 // ===== Diff Engine (Side-By-Side with LCS) =====
