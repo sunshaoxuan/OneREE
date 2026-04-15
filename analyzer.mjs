@@ -128,7 +128,7 @@ async function analyze() {
         const progress = Math.round((count / total) * 100);
 
         saveStatus({
-            status: 'analyzing', progress, currentFile: relativePath,
+            status: 'analyzing', progress, currentFile: fileName,
             log: `処理中 ${count}/${total}: ${fileName}`
         });
 
@@ -169,7 +169,7 @@ async function analyze() {
             if (!skipAnalysis) {
                 if (fileName.endsWith('.class')) {
                     console.log(`Decompiling ${relativePath}...`);
-                    saveStatus({ status: 'analyzing', progress, currentFile: relativePath, log: `${fileName} を逆コンパイル中...` });
+                    saveStatus({ status: 'analyzing', progress, currentFile: fileName, log: `${fileName} を逆コンパイル中...` });
                     try {
                         const cliClass = path.join(ROOT, 'DecompilerCLI.class');
                         if (!fs.existsSync(jdCoreJarAbs)) {
