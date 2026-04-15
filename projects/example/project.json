@@ -1,0 +1,9 @@
+{
+  "id": "example",
+  "name": "Example Project",
+  "name_en": "Example Project",
+  "name_ja": "サンプルプロジェクト",
+  "standard_dir": "standard",
+  "customized_dir": "customized",
+  "archive_path": ""
+}

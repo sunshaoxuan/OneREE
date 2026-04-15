@@ -9,8 +9,13 @@
 
 ## 快速开始
 
-1. 克隆仓库后，在项目根目录放置自己的 **`projects/`** 数据（本仓库默认不提交该目录，见下方说明）。
-2. 按需编辑 **`config.json`**（端口、默认语言、Java 反编译路径等）。
+1. 克隆后复制配置模板并编辑（仓库不提交个人 **`config.json`**，避免本机路径进入版本库）：
+   ```bat
+   copy config.example.json config.json
+   ```
+   （Linux / macOS：`cp config.example.json config.json`）
+   按需修改 `app_port`、`default_locale`、`default_project` 以及 **`java`** 中的 jd-core 路径（仅当需要反编译 `.class` 时）。
+2. 仓库已包含示例项目骨架 **`projects/example/`**（空 `standard/` / `customized/`）。可将真实源码放入对应目录，或复制该目录为新项目 ID 后修改 **`project.json`**。**除 `example` 外的本地项目目录默认不提交**（见 `.gitignore`）。
 3. **Windows**：双击 **`start.bat`**，或在 **cmd** / **PowerShell** 中于项目根目录执行：
    ```bat
    .\start.bat
@@ -26,7 +31,7 @@
 node server.mjs
 ```
 
-## 配置说明（`config.json`）
+## 配置说明（模板：`config.example.json` → 本地 `config.json`）
 
 | 字段 | 说明 |
 |------|------|
@@ -47,12 +52,13 @@ node server.mjs
 | `DecompilerCLI.java` | 反编译命令行入口（需 `javac` 编译后与 jd-core 一起使用） |
 | `scripts/free-port.ps1` | 释放 `app_port` 占用（由 `start.bat` 调用） |
 | `scripts/stop-server.ps1` | 结束运行 `server.mjs` 的 Node 进程（由 `stop.bat` 调用） |
-| `projects/` | **各项目数据（标准/定制目录、`project.json`、报告与状态等），体积较大，默认不纳入 Git** |
+| `config.example.json` | 根配置模板；复制为 `config.json` 后本地修改 |
+| `projects/example/` | **示例项目骨架**（`project.json`、`standard/`、`customized/`、`ignore.json`）；其余 `projects/*` 为本地数据，默认不提交 |
 
-本地使用时，请在 `projects/<项目名>/` 下按既有约定放置 `project.json` 及 `standard` / `customized` 等目录。
+本地新增大体积项目时，在 `projects/<项目ID>/` 下放置 `project.json` 及 `standard` / `customized` 等；可参考 `projects/example/README.md`。
 
 ## 许可证与归属
 
 产品名：**OneREE**。公司名：**OneHR**（见页面页脚）。
 
-若需二次开发或部署说明，可结合本仓库中的 `config.json` 与 `checker.mjs` 启动检查逻辑自行扩展。
+若需二次开发或部署说明，可结合 **`config.example.json`** 与 `checker.mjs` 启动检查逻辑自行扩展。

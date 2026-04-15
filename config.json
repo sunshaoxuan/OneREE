@@ -1,9 +1,0 @@
-{
-  "app_port": 3000,
-  "default_locale": "ja",
-  "default_project": "tsukuba",
-  "java": {
-    "jd_core_jar": "C:\\workspace\\jd-core-1.0.7\\build\\libs\\jd-core-1.0.7.jar",
-    "decompiler_cp": ".;C:\\workspace\\jd-core-1.0.7\\build\\libs\\jd-core-1.0.7.jar"
-  }
-}
