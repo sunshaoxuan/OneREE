@@ -120,6 +120,26 @@ body {
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
 }
 
+.header-input {
+    background: var(--surface);
+    border: 1px solid #e2e8f0;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    min-width: 180px;
+}
+
+.header-input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.project-create-group {
+    gap: 0.35rem;
+}
+
 .primary-btn {
     background: linear-gradient(135deg, #4f46e5, #7c3aed);
     border: none;
@@ -173,6 +193,12 @@ body {
 }
 
 .secondary-btn:active { background: #f1f5f9; }
+
+.secondary-btn:disabled, .primary-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
 
 .content {
     max-width: 100%;
@@ -543,6 +569,27 @@ tr:hover {
     flex-direction: column;
     gap: 1.5rem;
     overflow-y: auto;
+}
+
+.version-modal {
+    width: min(900px, 92vw);
+    max-height: 86vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.json-output {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 240px;
 }
 
 .glass-inset {

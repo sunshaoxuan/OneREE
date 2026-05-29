@@ -38,6 +38,8 @@
   "footer": "© 2026 OneHR",
   "lang_label": "言語",
   "project_label": "プロジェクト",
+  "new_project_label": "新規機関",
+  "new_project_placeholder": "機関名...",
   "log_engine_start": "OneREE エンジンが起動しました。ファイル差分をスキャン中...",
   "log_processing": "処理中 {count}/{total}: {file}",
   "log_decompiling": "{file} を逆コンパイル中...",
@@ -48,7 +50,12 @@
   "btn_ignore": "除外",
   "btn_ignore_all_added": "追加を一括除外",
   "btn_manage_ignore": "除外リスト管理",
+  "btn_version_check": "バージョン調査",
+  "btn_version_checking": "調査中...",
+  "btn_create_project": "作成",
+  "btn_creating_project": "作成中...",
   "col_actions": "操作",
+  "version_modal_title": "バージョン調査結果",
   "ignore_modal_title": "除外リスト",
   "ignore_modal_empty": "除外されているファイルはありません。",
   "ignore_list_count": "{count} 件の除外エントリ",
@@ -76,5 +83,9 @@
   "toast_no_added_files": "新規追加されたファイルはありません。",
   "toast_unignore_fail": "除外解除に失敗しました。",
   "toast_error": "エラーが発生しました。",
-  "toast_bulk_fail": "一括除外に失敗しました。"
+  "toast_bulk_fail": "一括除外に失敗しました。",
+  "toast_version_check_fail": "バージョン調査に失敗しました。",
+  "toast_project_name_required": "機関名を入力してください。",
+  "toast_project_create_fail": "プロジェクト作成に失敗しました。",
+  "toast_project_created": "プロジェクト {id} を作成しました。"
 }

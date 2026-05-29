@@ -38,6 +38,8 @@
   "footer": "© 2026 OneHR",
   "lang_label": "语言",
   "project_label": "项目",
+  "new_project_label": "新机构",
+  "new_project_placeholder": "机构名称...",
   "log_engine_start": "OneREE 引擎已启动，正在扫描文件差异...",
   "log_processing": "处理中 {count}/{total}: {file}",
   "log_decompiling": "正在反编译 {file}...",
@@ -48,7 +50,12 @@
   "btn_ignore": "忽略",
   "btn_ignore_all_added": "一键忽略所有新增",
   "btn_manage_ignore": "管理忽略名单",
+  "btn_version_check": "调查版本",
+  "btn_version_checking": "调查中...",
+  "btn_create_project": "创建",
+  "btn_creating_project": "创建中...",
   "col_actions": "操作",
+  "version_modal_title": "版本调查结果",
   "ignore_modal_title": "忽略名单",
   "ignore_modal_empty": "当前没有忽略的文件。",
   "ignore_list_count": "共 {count} 条忽略项",
@@ -76,5 +83,9 @@
   "toast_no_added_files": "没有新增的文件。",
   "toast_unignore_fail": "取消忽略失败。",
   "toast_error": "发生错误。",
-  "toast_bulk_fail": "批量忽略失败。"
+  "toast_bulk_fail": "批量忽略失败。",
+  "toast_version_check_fail": "版本调查失败。",
+  "toast_project_name_required": "请输入机构名称。",
+  "toast_project_create_fail": "项目创建失败。",
+  "toast_project_created": "已创建项目 {id}。"
 }

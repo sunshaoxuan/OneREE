@@ -25,6 +25,14 @@
                 <label data-i18n="project_label">プロジェクト</label>
                 <select id="project-selector" class="header-select" title="Project"></select>
             </div>
+            <div class="control-group project-create-group">
+                <label data-i18n="new_project_label">新規機関</label>
+                <input id="new-project-name" class="header-input" type="text" data-i18n-placeholder="new_project_placeholder" placeholder="機関名..." title="New project name">
+                <button id="create-project-btn" class="secondary-btn">
+                    <i data-lucide="folder-plus"></i>
+                    <span data-i18n="btn_create_project">作成</span>
+                </button>
+            </div>
             <div class="control-group">
                 <label data-i18n="lang_label">言語</label>
                 <select id="lang-selector" class="header-select" title="Language">
@@ -40,6 +48,10 @@
             <button id="manage-ignore-btn" class="secondary-btn">
                 <i data-lucide="ban"></i>
                 <span data-i18n="btn_manage_ignore">除外リスト管理</span>
+            </button>
+            <button id="version-check-btn" class="secondary-btn">
+                <i data-lucide="search-check"></i>
+                <span data-i18n="btn_version_check">バージョン調査</span>
             </button>
             <button id="analyze-btn" class="primary-btn">
                 <i data-lucide="refresh-cw"></i>
@@ -141,6 +153,24 @@
     </footer>
 
     <div id="toast" class="toast hidden"></div>
+
+    <!-- Modal for version check result -->
+    <div id="version-modal" class="modal hidden">
+        <div class="modal-content glass-card version-modal">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <h3 data-i18n="version_modal_title">バージョン調査結果</h3>
+                    <div class="modal-path-row">
+                        <span id="version-modal-subtitle" class="path-badge"></span>
+                    </div>
+                </div>
+                <button id="close-version-modal" class="icon-btn" title="Close"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <pre id="version-json" class="json-output"></pre>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal for diff details -->
     <div id="modal" class="modal hidden">

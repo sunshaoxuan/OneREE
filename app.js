@@ -149,6 +149,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const analyzeBtn = document.getElementById('analyze-btn');
     if (analyzeBtn) analyzeBtn.addEventListener('click', startAnalysis);
 
+    const createProjectBtn = document.getElementById('create-project-btn');
+    if (createProjectBtn) createProjectBtn.addEventListener('click', createProjectFromName);
+
+    const newProjectName = document.getElementById('new-project-name');
+    if (newProjectName) newProjectName.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') createProjectFromName();
+    });
+
     const prevPage = document.getElementById('prev-page');
     if (prevPage) prevPage.addEventListener('click', () => changePage(-1));
 
@@ -215,6 +223,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const manageIgnoreBtn = document.getElementById('manage-ignore-btn');
     if (manageIgnoreBtn) manageIgnoreBtn.addEventListener('click', openIgnoreList);
 
+    const versionCheckBtn = document.getElementById('version-check-btn');
+    if (versionCheckBtn) versionCheckBtn.addEventListener('click', checkProjectVersions);
+
+    const closeVersionModal = document.getElementById('close-version-modal');
+    if (closeVersionModal) closeVersionModal.addEventListener('click', () => {
+        document.getElementById('version-modal').classList.add('hidden');
+    });
+
     const ignoreAllAddedBtn = document.getElementById('ignore-all-added-btn');
     if (ignoreAllAddedBtn) ignoreAllAddedBtn.addEventListener('click', ignoreAllAddedFiles);
 
@@ -244,6 +260,77 @@ async function fetchData() {
         showToast(t("toast_fetch_error"), "error");
     }
     return false;
+}
+
+async function checkProjectVersions() {
+    const btn = document.getElementById('version-check-btn');
+    const label = btn ? btn.querySelector('span') : null;
+    const originalText = label ? label.textContent : '';
+
+    try {
+        if (btn) btn.disabled = true;
+        if (label) label.textContent = t('btn_version_checking');
+
+        const response = await fetch(`/api/version-check?project=${currentProject}&t=${Date.now()}`);
+        const result = await response.json();
+        if (!response.ok) {
+            showToast(result.error || t('toast_version_check_fail'), 'error');
+        }
+
+        const project = projectList.find(p => p.id === currentProject);
+        document.getElementById('version-modal-subtitle').textContent = project ? project.name : currentProject;
+        document.getElementById('version-json').textContent = JSON.stringify(result, null, 2);
+        document.getElementById('version-modal').classList.remove('hidden');
+        lucide.createIcons();
+    } catch (e) {
+        console.error('Version check failed:', e);
+        showToast(t('toast_version_check_fail'), 'error');
+    } finally {
+        if (btn) btn.disabled = false;
+        if (label) label.textContent = originalText || t('btn_version_check');
+    }
+}
+
+async function createProjectFromName() {
+    const input = document.getElementById('new-project-name');
+    const btn = document.getElementById('create-project-btn');
+    const label = btn ? btn.querySelector('span') : null;
+    const name = input ? input.value.trim() : '';
+    const originalText = label ? label.textContent : '';
+
+    if (!name) {
+        showToast(t('toast_project_name_required'), 'error');
+        return;
+    }
+
+    try {
+        if (btn) btn.disabled = true;
+        if (label) label.textContent = t('btn_creating_project');
+
+        const response = await fetch('/api/projects/create-from-name', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.error || t('toast_project_create_fail'));
+        }
+
+        await loadProjects();
+        currentProject = result.project.id;
+        const selector = document.getElementById('project-selector');
+        if (selector) selector.value = currentProject;
+        if (input) input.value = '';
+        await fetchData();
+        showToast(t('toast_project_created', { id: result.project.id }), 'success');
+    } catch (e) {
+        console.error('Project create failed:', e);
+        showToast(e.message || t('toast_project_create_fail'), 'error');
+    } finally {
+        if (btn) btn.disabled = false;
+        if (label) label.textContent = originalText || t('btn_create_project');
+    }
 }
 
 function populateTypeFilter() {

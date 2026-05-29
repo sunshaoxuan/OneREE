@@ -38,6 +38,8 @@
   "footer": "© 2026 OneHR",
   "lang_label": "Language",
   "project_label": "Project",
+  "new_project_label": "New Org",
+  "new_project_placeholder": "Organization name...",
   "log_engine_start": "OneREE engine started. Scanning file differences...",
   "log_processing": "Processing {count}/{total}: {file}",
   "log_decompiling": "Decompiling {file}...",
@@ -48,7 +50,12 @@
   "btn_ignore": "Ignore",
   "btn_ignore_all_added": "Ignore All Added",
   "btn_manage_ignore": "Manage Ignore List",
+  "btn_version_check": "Check Versions",
+  "btn_version_checking": "Checking...",
+  "btn_create_project": "Create",
+  "btn_creating_project": "Creating...",
   "col_actions": "Actions",
+  "version_modal_title": "Version Check Result",
   "ignore_modal_title": "Ignore List",
   "ignore_modal_empty": "No files are currently ignored.",
   "ignore_list_count": "{count} ignored entries",
@@ -76,5 +83,9 @@
   "toast_no_added_files": "No newly added files found.",
   "toast_unignore_fail": "Failed to un-ignore file.",
   "toast_error": "An error occurred.",
-  "toast_bulk_fail": "Bulk ignore failed."
+  "toast_bulk_fail": "Bulk ignore failed.",
+  "toast_version_check_fail": "Version check failed.",
+  "toast_project_name_required": "Enter an organization name.",
+  "toast_project_create_fail": "Failed to create project.",
+  "toast_project_created": "Created project {id}."
 }
